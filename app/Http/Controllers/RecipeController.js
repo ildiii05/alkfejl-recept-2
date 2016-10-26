@@ -57,7 +57,79 @@ class RecipeController {
     }
 
     *show(request, response){
-        yield response.sendView('showRecipe')
+        const id = request.param('id')
+        const recipe = yield Recipe.find(id) //yield mert minden művelet aszinkron
+        if (!recipe) {
+            response.notFound('Nincs ilyen recept')
+            return
+        }
+        yield recipe.related('category').load()
+        //console.log(recipe.toJSON())
+        yield response.sendView('showRecipe', {
+            recipe: recipe.toJSON()
+        })
+    }
+
+    //recept szerkesztése
+    * edit(request, response){
+        const categories = yield Category.all();
+        const id = request.param('id')
+        const recipe = yield Recipe.find(id)
+        if (!recipe) {
+            response.notFound('Nincs ilyen recept')
+            return
+        }
+        console.log(recipe.toJSON())
+        
+        yield recipe.related('category').load()
+        yield response.sendView('editRecipe', {
+            recipe: recipe.toJSON(),
+            categories: categories.toJSON()
+        });
+    }
+
+    * doEdit(request, response){
+        const recipeData = request.except('_csrf');
+        const rules = {
+            name: 'required',
+            ingredients: 'required',
+            instructions: 'required',
+            category_id: 'required'
+        }
+
+        const validation = yield Validator.validateAll(recipeData, rules);
+        if(validation.fails()){
+            yield request
+                .withAll()
+                .andWith({ errors: validation.messages() })
+                .flash()
+
+            response.redirect('back')
+            return
+        }
+        const id = request.param('id')
+        const recipe = yield Recipe.find(id)
+
+        recipe.name = recipeData.name
+        recipe.ingredients = recipeData.ingredients,
+        recipe.instructions = recipeData.instructions,
+        recipe.category_id = recipeData.category_id
+       
+        yield recipe.save()
+        response.redirect('/');
+    }
+
+    //recept törlése
+    * delete(request,response){
+        const id = request.param('id')
+        const recipe = yield Recipe.find(id)
+        if (!recipe) {
+            response.notFound('Nincs ilyen recept')
+            return
+        }
+
+        yield recipe.delete();
+        response.redirect('/');
     }
 }
 
