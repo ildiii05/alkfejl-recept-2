@@ -15,4 +15,8 @@
 {{recipe.instructions}}
 </pre>
 
+{% if currentUser.id == recipe.user_id %}
+<a class="btn btn-primary" href="./{{recipe.id}}/edit"> szerkesztés</a>
+<a class="btn btn-danger" href="./{{recipe.id}}/delete"> törlés</a>
+{% endif %}
 {% endblock %}

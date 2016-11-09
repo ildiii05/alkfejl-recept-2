@@ -18,4 +18,15 @@ Route.get('/recipes/:id/edit', 'RecipeController.edit')
 Route.post('/recipes/:id/edit', 'RecipeController.doEdit')
 
 //recept törléséhez
-Route.get('/recipes/:id/delete', 'RecipeController.delete')
+Route.post('/recipes/:id/delete', 'RecipeController.delete')
+
+//regisztráció
+Route.get('/register', 'UserController.register')
+Route.post('/register', 'UserController.doRegister')
+
+//bejelentkezés
+
+Route.get('/login', 'UserController.login')
+Route.post('/login', 'UserController.doLogin')
+
+Route.get('logut', 'UserController.dologout')
